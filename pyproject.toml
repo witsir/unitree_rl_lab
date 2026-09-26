@@ -59,8 +59,6 @@ known_isaaclabparty = [
 known_firstparty = "unitree_rl_lab"
 known_local_folder = "config"
 
-[tool.pyright]
-
 exclude = [
     "**/__pycache__",
     "**/docs",
@@ -70,7 +68,7 @@ exclude = [
 ]
 
 typeCheckingMode = "basic"
-pythonVersion = "3.10"
+pythonVersion = "3.11"
 pythonPlatform = "Linux"
 enableTypeIgnoreComments = true
 

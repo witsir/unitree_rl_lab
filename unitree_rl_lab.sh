@@ -2,10 +2,15 @@
 
 export UNITREE_RL_LAB_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-if ! [[ -z "${CONDA_PREFIX}" ]]; then
+# resolve python executable: conda > virtualenv (incl. `pyenv activate`) > python on PATH (e.g. pyenv shim)
+if [[ -n "${CONDA_PREFIX}" ]]; then
     python_exe=${CONDA_PREFIX}/bin/python
+elif [[ -n "${VIRTUAL_ENV}" ]]; then
+    python_exe=${VIRTUAL_ENV}/bin/python
+elif command -v python &> /dev/null; then
+    python_exe=$(python -c "import sys; print(sys.executable)")
 else
-    echo "[Error] No conda environment activated. Please activate the conda environment first."
+    echo "[Error] No python environment found. Please activate a conda/virtualenv/pyenv environment first."
     # exit 1
 fi
 
@@ -62,9 +67,12 @@ _ut_setup_conda_env() {
 case "$1" in
     -i|--install)
         git lfs install # ensure git lfs is installed
-        pip install -e ${UNITREE_RL_LAB_PATH}/source/unitree_rl_lab/
-        _ut_setup_conda_env
-        activate-global-python-argcomplete
+        ${python_exe} -m pip install -e ${UNITREE_RL_LAB_PATH}/source/unitree_rl_lab/
+        # only conda has activate.d hooks; for virtualenv/pyenv, source this script in your shell rc if needed
+        if [[ -n "${CONDA_PREFIX}" ]]; then
+            _ut_setup_conda_env
+        fi
+        $(dirname ${python_exe})/activate-global-python-argcomplete
         ;;
     -l|--list)
         shift
